@@ -1,5 +1,5 @@
 project=hyperon
-org=github.com/hyperon
+org=github.com/dreamersdw
 runargs=-c hyperon.toml
 
 workspace=$(shell pwd)
