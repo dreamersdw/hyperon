@@ -1,2 +1,8 @@
-localaddr = "127.0.0.1:6378"
-remoteaddr = "127.0.0.1:6379"
+[[servers]]
+    name = "redis"
+    localaddr = "127.0.0.1:6378"
+    remoteaddr = "127.0.0.1:6379"
+[[servers]]
+    name = "mysql"
+    localaddr = "127.0.0.1:3305"
+    remoteaddr = "127.0.0.1:3306"

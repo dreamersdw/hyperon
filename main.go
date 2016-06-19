@@ -13,9 +13,13 @@ import (
 )
 
 // Config for hyperon server
-type Config struct {
+type ServerConf struct {
+	name       string
 	LocalAddr  string
 	RemoteAddr string
+}
+type Config struct {
+	Servers []ServerConf
 }
 
 // NewConfigFromFile will load config from toml style file
@@ -100,6 +104,10 @@ func main() {
 		fmt.Printf("unable load config from %s, %s\n", path, err)
 	}
 
-	bridge(cfg.LocalAddr, cfg.RemoteAddr)
+	for _, serverconf := range cfg.Servers {
+		localAddr := serverconf.LocalAddr
+		remoteAddr := serverconf.RemoteAddr
+		go bridge(localAddr, remoteAddr)
+	}
 	select {}
 }
