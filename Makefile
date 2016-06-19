@@ -1,5 +1,6 @@
 project=hyperon
 org=github.com/hyperon
+runargs=-c hyperon.toml
 
 workspace=$(shell pwd)
 gosrc=$$GOPATH/src
@@ -21,7 +22,7 @@ build:
 	@cd $(builddir); $(buildflag) go build
 
 run:
-	@cd $(builddir); $(buildflag) go run main.go
+	@cd $(builddir); $(buildflag) go run main.go $(runargs)
 
 clean:
 	@cd $(builddir); $(buildflag) go clean

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -90,11 +91,15 @@ func bridge(local string, remote string) {
 }
 
 func main() {
-	path := "hyperon.toml"
+	conf := flag.String("c", "hyperon.toml", "hyperon config file")
+	flag.Parse()
+	path := *conf
+
 	cfg, err := NewConfigFromFile(path)
 	if err != nil {
 		fmt.Printf("unable load config from %s, %s\n", path, err)
 	}
+
 	bridge(cfg.LocalAddr, cfg.RemoteAddr)
 	select {}
 }
