@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"runtime"
 	"sync"
 	"time"
 
@@ -101,6 +102,15 @@ func bridge(local string, remote string) {
 	}
 }
 
+func wait() {
+	for {
+		if runtime.NumGoroutine() <= 1 {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
 func main() {
 	conf := flag.String("c", "hyperon.toml", "hyperon config file")
 	flag.Parse()
@@ -116,5 +126,6 @@ func main() {
 		remoteAddr := serverconf.RemoteAddr
 		go bridge(localAddr, remoteAddr)
 	}
-	select {}
+
+	wait()
 }
