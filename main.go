@@ -59,38 +59,45 @@ func transfer(client *net.Conn, server *net.Conn) {
 	c.L.Unlock()
 }
 
-func bridge(local string, remote string) {
-	ln, err := net.Listen("tcp", local)
-	defer ln.Close()
-
-	if err != nil {
-		log.Printf("fail to listen on %s, %s", local, err)
+func handle(client net.Conn, local string, remote string) {
+	tc, ok := client.(*net.TCPConn)
+	if !ok {
+		log.Printf("error to cast connection")
 		return
 	}
+	tc.SetKeepAlive(true)
+	tc.SetKeepAlivePeriod(1 * time.Second)
+	defer client.Close()
+
+	server, err := net.Dial("tcp", remote)
+	if err != nil {
+		log.Printf("fail to connect to server %s, %s", remote, err)
+		return
+	}
+	defer server.Close()
+
+	log.Printf("establish %s --> %s", local, remote)
+	transfer(&client, &server)
+	log.Printf("closing %s --> %s", local, remote)
+}
+
+func bridge(local string, remote string) {
+	ln, err := net.Listen("tcp", local)
+
+	if err != nil {
+		log.Printf("%s", err)
+		return
+	}
+	defer ln.Close()
+
 	log.Printf("listen on %s", local)
 	for {
 		client, err := ln.Accept()
 		if err != nil {
 			log.Printf("fail to accept on %s, %s", local, err)
+			continue
 		}
-		tc, ok := client.(*net.TCPConn)
-		if !ok {
-			log.Printf("error to cast connection")
-		}
-		tc.SetKeepAlive(true)
-		tc.SetKeepAlivePeriod(1 * time.Second)
-		defer client.Close()
-
-		server, err := net.Dial("tcp", remote)
-		if err != nil {
-			log.Printf("fail to connect to server %s, %s", remote, err)
-		}
-		defer server.Close()
-		go func() {
-			log.Printf("establish %s --> %s", local, remote)
-			transfer(&client, &server)
-			log.Printf("closing %s --> %s", local, remote)
-		}()
+		go handle(client, local, remote)
 	}
 }
 
